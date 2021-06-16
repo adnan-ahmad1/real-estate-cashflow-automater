@@ -1,7 +1,8 @@
 import scrapy
 from scrapy.http import FormRequest
-from scrapy.utils.response import open_in_browser
 from ast import literal_eval
+import time
+
 
 class CashFlowSpider(scrapy.Spider):
     name = "cashflow"
@@ -14,7 +15,7 @@ class CashFlowSpider(scrapy.Spider):
     """ get the overarching page and check every listing inside """
     def parse(self, response):
 
-        open_in_browser(response)
+        #open_in_browser(response)
 
         # go through all the listings
         listing_num = 1
@@ -35,8 +36,8 @@ class CashFlowSpider(scrapy.Spider):
                 event_argument = inside_paren[inside_paren.find(',')+1:len(inside_paren)]
 
                 # print postback arguments
-                print('__EVENTTARGET' + event_target)
-                print('__EVENTARGUMENT' + event_argument)
+                #print('__EVENTTARGET' + event_target)
+                #print('__EVENTARGUMENT' + event_argument)
 
                 formdata = dict()
                 formdata['__EVENTTARGET'] = literal_eval(event_target)
@@ -48,9 +49,60 @@ class CashFlowSpider(scrapy.Spider):
                     callback=self.parse_inner,
                     dont_click=True)
 
+
     """ parses the inner page of each listing to get financial information """
     def parse_inner(self, response):
 
-        open_in_browser(response)
+        #open_in_browser(response)
 
+        result = ''
 
+        # print city
+        #print('Location: ' + response.css('div.col-sm-12.d-textSoft').css('span.d-paddingRight--1::text').get())
+        result += 'Location: ' + response.css('div.col-sm-12.d-textSoft').css('span.d-paddingRight--1::text').get()
+        result += '\n'
+
+        # print listing price and annual insurance expense
+        general_description = response.css('div.col-xs-6.inherit.inherit.inherit.J_sect')
+        for block in general_description:
+            property = block.css('span.d-paddingRight--4.d-text::text').get()
+            if property == 'Listing Price' or property == 'Insurance Expenses':
+                info = block.css('span.d-textStrong::text').get()
+                #print(property + ": " + info)
+                result += property + ": " + info
+                result += '\n'
+
+        # print annual tax
+        listing_information = response.css('div.col-xs-6.J_sect')
+        for block in listing_information:
+            property = block.css('span.d-paddingRight--4.d-text::text').get()
+            if property == 'Taxes Annual':
+                info = block.css('span.d-textStrong::text').get()
+                #print(property + ": " + info)
+                result += property + ": " + info
+                result += '\n'
+
+        # print unit information
+        units = response.css('div.multiLineDisplay.ajax_display.d14279m_show')
+        num_units = len(units)
+        #print('Number of units: ' + str(num_units))
+
+        result += 'Number of units: ' + str(num_units)
+        result += '\n'
+
+        i = 1
+        for unit in units:
+            unit_properties = unit.css('div.col-xs-6.inherit.col-md-4.col-lg-3.J_sect')
+
+            for unit_property in unit_properties:
+
+                unit_property_name = unit_property.css('span.d-text.d-paddingRight--4::text').get()
+                if unit_property_name == 'Unit Rent':
+                    info = unit_property.css('span.d-textStrong::text').get()
+                    #print(unit_property_name + " " + str(i) + ": " + info)
+
+                    result += unit_property_name + " " + str(i) + ": " + info
+                    result += '\n'
+                    i = i + 1
+
+        print(result)
