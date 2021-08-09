@@ -134,4 +134,4 @@ dmypy.json
 credentials.json
 sheets_auth.json
 .vscode
-result.json
+cashflow.json

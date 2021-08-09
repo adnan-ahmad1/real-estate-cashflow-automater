@@ -8,12 +8,18 @@ class CashFlowSpider(scrapy.Spider):
     name = "cashflow"
 
     start_urls = [
-        "https://www.matrix.nwmls.com/Matrix/Public/Portal.aspx?ID=DE-156324038246&eml=YWRuYW5haG1hZDQ4NzNAZ21haWwuY29t"
+        "https://www.matrix.nwmls.com/Matrix/Public/Portal.aspx?ID=DE-153870005468&eml=YWRuYW5haG1hZDQ4NzNAZ21haWwuY29t"
     ]
 
     # def start_requests(self):
 
     # yield scrapy.Request(url=self.url, callback=self.parse)
+
+    def remove_unnecessary_chars(self, line):
+        if line[0] == "$":
+            line = line[1:]
+        line = line.replace(",", "")
+        return line
 
     """ get the overarching page and check every listing inside """
 
@@ -103,7 +109,7 @@ class CashFlowSpider(scrapy.Spider):
                 # print(property + ": " + info)
                 result += property + ": " + info
                 result += "\n"
-                item["listing_price"] = info
+                item["listing_price"] = self.remove_unnecessary_chars(info)
 
         for block in general_description:
             property = block.css("span.d-paddingRight--4.d-text::text").get()
@@ -112,7 +118,7 @@ class CashFlowSpider(scrapy.Spider):
                 # print(property + ": " + info)
                 result += property + ": " + info
                 result += "\n"
-                item["insurance_expenses"] = info
+                item["insurance_expenses"] = self.remove_unnecessary_chars(info)
 
         # print style code
         listing_information = response.css("div.col-xs-6.J_sect")
@@ -135,7 +141,7 @@ class CashFlowSpider(scrapy.Spider):
                 # print(property + ": " + info)
                 result += property + ": " + info
                 result += "\n"
-                item["taxes_annual"] = info
+                item["taxes_annual"] = self.remove_unnecessary_chars(info)
 
         # print unit information
         units = response.css("div.multiLineDisplay.ajax_display.d14279m_show")
