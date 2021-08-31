@@ -1,7 +1,11 @@
 # real-estate-cashflow-automater
 
+STILL IN BETA VERSION! Currently working on making it easier to run.
+
+To use:
+
 pip install scrapy
 
-to run sheets.py: /opt/anaconda3/bin/python /Users/adnanahmad/Desktop/real-estate-cashflow-automater/sheets.py
-
 to run cashflow spider: scrapy crawl cashflow -o cashflow.json
+
+to run sheets.py: python sheets.py
