@@ -1,7 +1,7 @@
 from oauth2client.service_account import ServiceAccountCredentials
 import gspread
 import json
-
+import time
 
 def get_mortgage_formula(nextRow):
     return (
@@ -30,9 +30,11 @@ def update_if_exists(columnLetter, valueType, value, nextRow, worksheet):
                 columnLetter + nextRow, {"numberFormat": {"type": str(valueType)}}
             )
         worksheet.update(columnLetter + nextRow, value)
+        time.sleep(1)
     else:
         worksheet.format(columnLetter + nextRow, {"backgroundColor": {"red": 0.5}})
         worksheet.update(columnLetter + nextRow, "MISSING")
+        time.sleep(1)
 
 
 def next_available_row(worksheet):
@@ -52,7 +54,7 @@ client = gspread.authorize(creds)
 worksheet = client.open("Real Estate Cashflow").sheet1
 
 # extract data from json file
-with open("cashflow/cashflow/cashflow.json", "r") as read_file:
+with open("cashflow/cashflow.json", "r") as read_file:
     data = json.load(read_file)
 
     next_row = next_available_row(worksheet)
@@ -76,12 +78,14 @@ with open("cashflow/cashflow/cashflow.json", "r") as read_file:
                 "=D" + next_row + "*0.25",
                 value_input_option="USER_ENTERED",
             )
+            time.sleep(1)
 
             worksheet.update(
                 "F" + next_row,
                 "=D" + next_row + "-E" + next_row,
                 value_input_option="USER_ENTERED",
             )
+            time.sleep(1)
 
         update_if_exists("G", "NUMBER", int(row["num_units"]), next_row, worksheet)
 
@@ -93,35 +97,43 @@ with open("cashflow/cashflow/cashflow.json", "r") as read_file:
 
         # enter mortgage formula
         worksheet.format("I" + next_row, {"numberFormat": {"type": "CURRENCY"}})
+        time.sleep(1)
         worksheet.update(
             "I" + next_row,
             get_mortgage_formula(next_row),
             value_input_option="USER_ENTERED",
         )
+        time.sleep(1)
 
         # enter PM formula
         worksheet.format("J" + next_row, {"numberFormat": {"type": "CURRENCY"}})
+        time.sleep(1)
         worksheet.update(
             "J" + next_row,
             "=H" + next_row + "*0.12",
             value_input_option="USER_ENTERED",
         )
+        time.sleep(1)
 
         # enter maintenance formula
         worksheet.format("M" + next_row, {"numberFormat": {"type": "CURRENCY"}})
+        time.sleep(1)
         worksheet.update(
             "M" + next_row,
             "=H" + next_row + "*0.05",
             value_input_option="USER_ENTERED",
         )
+        time.sleep(1)
 
         # enter capital expenditure
         worksheet.format("N" + next_row, {"numberFormat": {"type": "CURRENCY"}})
+        time.sleep(1)
         worksheet.update(
             "N" + next_row,
             "=H" + next_row + "*0.05",
             value_input_option="USER_ENTERED",
         )
+        time.sleep(1)
 
         update_if_exists(
             "Q",
@@ -143,35 +155,43 @@ with open("cashflow/cashflow/cashflow.json", "r") as read_file:
 
         # enter monthly tax formula
         worksheet.format("K" + next_row, {"numberFormat": {"type": "CURRENCY"}})
+        time.sleep(1)
         worksheet.update(
             "K" + next_row,
             "=Q" + next_row + "/12",
             value_input_option="USER_ENTERED",
         )
+        time.sleep(1)
 
         # enter monthly insurance formula
         worksheet.format("L" + next_row, {"numberFormat": {"type": "CURRENCY"}})
+        time.sleep(1)
         worksheet.update(
             "L" + next_row,
             "=R" + next_row + "/12",
             value_input_option="USER_ENTERED",
         )
+        time.sleep(1)
 
         # enter total expenses formula
         worksheet.format("O" + next_row, {"numberFormat": {"type": "CURRENCY"}})
+        time.sleep(1)
         worksheet.update(
             "O" + next_row,
             "=SUM(I" + next_row + ":N" + next_row + ")",
             value_input_option="USER_ENTERED",
         )
+        time.sleep(1)
 
         # enter cash flow formula
         worksheet.format("P" + next_row, {"numberFormat": {"type": "CURRENCY"}})
+        time.sleep(1)
         worksheet.update(
             "P" + next_row,
             "=H" + next_row + "-O" + next_row,
             value_input_option="USER_ENTERED",
         )
+        time.sleep(1)
 
         # update to next column
         next_row = str(int(next_row) + 1)
