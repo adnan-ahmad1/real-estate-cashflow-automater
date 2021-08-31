@@ -5,6 +5,7 @@ STILL IN BETA VERSION! Currently working on making it easier to run.
 VIDEO OF DEMO: https://youtu.be/6W3gDFYJZ2o
 
 Commands to run:
+
 pip install scrapy
 
 to run cashflow spider: scrapy crawl cashflow -o cashflow.json
